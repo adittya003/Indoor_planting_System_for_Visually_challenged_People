@@ -1,4 +1,4 @@
-# flutter_app
+# indoor_planting_app_visually_challenged
 
 A new Flutter project.
 
