@@ -123,7 +123,7 @@ class PlantDetailsPage extends StatelessWidget {
               Text(
                 title,
                 style: TextStyle(
-                  fontSize: 15,
+                  fontSize: 20,
                   fontWeight: FontWeight.bold,
                 ),
                 textAlign: TextAlign.center,
@@ -131,7 +131,7 @@ class PlantDetailsPage extends StatelessWidget {
               SizedBox(height: 4),
               Text(
                 value,
-                style: TextStyle(fontSize: 15),
+                style: TextStyle(fontSize: 25),
                 textAlign: TextAlign.center,
               ),
             ],
