@@ -14,7 +14,7 @@ exports.getTemprature = async(req,res) => {
 
         res.status(200).json({
             success:true,
-            temperature: response.data
+            value: response.data
         });
 
     } catch(error){
@@ -35,7 +35,7 @@ exports.getHumidity =  async(req,res)=> {
 
         res.status(200).json({
             success:true,
-            humidity: response.data
+            value: response.data
         });
 
     } catch(error){
@@ -55,14 +55,14 @@ exports.getLDR = async(req,res)=> {
         const response = await axios.get(url)
         let response1 = ''
         if (response.data == 1){
-            response1 = 'Enough Light is Present'
+            response1 = 'Enough Light'
         }else{
-            response1 = 'Enough Light is not Present'
+            response1 = 'Light not Present'
         }
 
         res.status(200).json({
             success:true,
-            LDR: response1
+            value: response1
         });
 
     } catch(error){
@@ -84,7 +84,7 @@ exports.getWaterLevel = async (req, res) => {
 
         res.status(200).json({
             success: true,
-            waterLevel: percentage.toFixed(2) // Limit to 2 decimal places
+            value: percentage.toFixed(2) // Limit to 2 decimal places
         });
 
     } catch (error) {
@@ -105,14 +105,14 @@ exports.getIR1 = async (req, res) => {
         const response = await axios.get(url)
         let response1 = ''
         if (response.data == 1){
-            response1 = 'Plant has Reached the Required Height'
+            response1 = 'Height Reached'
         }else{
-            response1 = 'Plant is Still Growing to reach the height'
+            response1 = 'Still Growing'
         }
 
         res.status(200).json({
             success:true,
-            IR1: response1
+            value: response1
         });
 
     } catch(error){
@@ -138,7 +138,7 @@ exports.getIR2 = async (req, res) => {
 
         res.status(200).json({
             success:true,
-            IR2: response1
+            value: response1
         });
 
     } catch(error){
@@ -160,7 +160,7 @@ exports.getSoilMoisture = async (req, res) => {
 
         res.status(200).json({
             success: true,
-            Soil_Moisture: percentage.toFixed(2) // Limit to 2 decimal places
+            value: percentage.toFixed(2) // Limit to 2 decimal places
         });
 
     } catch (error) {
@@ -183,10 +183,12 @@ exports.Manual_Water_Pump_switch = async (req,res) => {
             await axios.get(url_update_off);
             console.log("water pump turned off");
         }, 5000);
-        res.status(200).json({message: "Water pump activated for 5 seconds" });
+        res.status(200).json({success: true });
         
     } catch (error) {
         console.error("Error controlling water pump:", error.message);
-        res.status(500).json({ message: "Failed to activate water pump", error: error.message });
+        res.status(500).json({
+        success:false,
+        message: "Failed to activate water pump", error: error.message });
     }
 };

@@ -52,7 +52,7 @@ function setupWebSockets(io) {
                     fetchTemperature()
                 ]);
 
-                // console.log("📡 Data Sent:", { intruderStatus, waterLevel, temperature });
+                 console.log("📡 Data Sent:", { intruderStatus, waterLevel, temperature });
 
                 // Use `io.emit` to send to all clients
                 io.emit("sensorData", { intruderStatus, waterLevel, temperature });

@@ -1,6 +1,52 @@
 import 'package:flutter/material.dart';
+import 'package:audioplayers/audioplayers.dart';
+import '../tts_voice.dart';
+import 'plant_details.dart'; // Import Plant Details Page
 
-class DangerAlertPage extends StatelessWidget {
+class DangerAlertPage extends StatefulWidget {
+  @override
+  _DangerAlertPageState createState() => _DangerAlertPageState();
+}
+
+class _DangerAlertPageState extends State<DangerAlertPage> {
+  late AudioPlayer _audioPlayer;
+  bool isAcknowledged = false; // Track button presses
+
+  @override
+  void initState() {
+    super.initState();
+    _audioPlayer = AudioPlayer();
+    _playAlarm(); // Start alarm when page loads
+  }
+
+  // Play alarm in an infinite loop
+  void _playAlarm() async {
+    await _audioPlayer.setReleaseMode(ReleaseMode.loop); // Keep looping
+    await _audioPlayer.play(AssetSource('sounds/alarm.mp3')); // Ensure path is correct
+  }
+
+  // Stop alarm and navigate if needed
+  void _handleAcknowledge() async {
+    if (!isAcknowledged) {
+      await _audioPlayer.stop(); // Stop alarm
+      setState(() {
+        isAcknowledged = true; // First press
+      });
+    } else {
+      await _audioPlayer.dispose(); // Clean up before navigation
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => PlantDetailsPage()),
+      );
+    }
+  }
+
+  @override
+  void dispose() {
+    _audioPlayer.dispose(); // Clean up audio player
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -9,18 +55,14 @@ class DangerAlertPage extends StatelessWidget {
         children: [
           // Warning Icon Positioned at the Top
           Positioned(
-            top: 80, // Adjusted to move higher
-            left: MediaQuery.of(context).size.width * 0.5 - 125, // Centered
-            child: Icon(
-              Icons.warning,
-              size: 250,
-              color: Colors.yellow,
-            ),
+            top: 80,
+            left: MediaQuery.of(context).size.width * 0.5 - 125,
+            child: Icon(Icons.warning, size: 250, color: Colors.yellow),
           ),
 
-          // Alert Message Box Positioned Below the Icon
+          // Alert Message Box
           Positioned(
-            top: 350, // Adjusted lower
+            top: 350,
             left: MediaQuery.of(context).size.width * 0.05,
             child: Container(
               width: MediaQuery.of(context).size.width * 0.9,
@@ -58,40 +100,39 @@ class DangerAlertPage extends StatelessWidget {
             ),
           ),
 
-          // Acknowledge Button (Left Side, Bigger Size)
+          // Acknowledge Button
           Positioned(
             bottom: 110,
-            left: MediaQuery.of(context).size.width * 0.05, // Adjust for alignment
+            left: MediaQuery.of(context).size.width * 0.05,
             child: SizedBox(
-              width: 175, // Increased size
+              width: 175,
               height: 175,
               child: FloatingActionButton(
                 heroTag: "acknowledgeBtn",
                 backgroundColor: Colors.green,
                 shape: CircleBorder(),
-                onPressed: () {
-                  Navigator.pop(context); // Close alert
-                },
-                child: Icon(Icons.check, size: 100), // Bigger Icon
+                onPressed: _handleAcknowledge,
+                child: Icon(Icons.check, size: 100),
               ),
             ),
           ),
 
-          // Speaker Button (Right Side, Bigger Size)
+          // Speaker Button (Optional)
           Positioned(
             bottom: 110,
-            right: MediaQuery.of(context).size.width * 0.05, // Adjust for alignment
+            right: MediaQuery.of(context).size.width * 0.05,
             child: SizedBox(
-              width: 175, // Increased size
+              width: 175,
               height: 175,
               child: FloatingActionButton(
                 heroTag: "speakerBtn",
                 backgroundColor: Colors.orange,
                 shape: CircleBorder(),
                 onPressed: () {
-                  // Voice alert feature to be integrated with backend
+                  String DangerText = "An unusual activity has been detected. Possible Intruder. Please check immediately";
+                  TTSVoice().speak(DangerText);
                 },
-                child: Icon(Icons.volume_up, size: 100), // Bigger Icon
+                child: Icon(Icons.volume_up, size: 100),
               ),
             ),
           ),
