@@ -6,6 +6,8 @@ from multiprocessing import Value
 from Config import Config
 from chatbot import *
 from insight_ai import *
+import requests
+
 app = Flask(__name__)
 app.config.from_object(Config)
 
@@ -71,6 +73,48 @@ def ask_bot():
 def end_chat():
     end_chat_session()
     return jsonify({"message": "Chat session cleared.","Success":"True"}), 200
+
+
+@app.route('/api/chat/sensor-data', methods=['GET', 'POST'])
+def get_data():
+    try:
+        base_url = "http://localhost:5000/api/v1"
+        endpoints = {
+            "temperature": "/get-Temprature",
+            "humidity": "/get-Humidity",
+            "light": "/get-LDR",
+            "soilMoisture": "/get-SoilMoisture",
+            "plantHeight": "/get-IR1"
+        }
+
+        sensor_data = {}
+        int_keys = {"temperature", "humidity", "soilMoisture"}
+
+        for key, endpoint in endpoints.items():
+            res = requests.get(f"{base_url}{endpoint}")
+            if res.status_code == 200:
+                value = res.json().get("value", "N/A")
+                if key in int_keys:
+                    try:
+                        # Convert float string/float to int
+                        sensor_data[key] = int(float(value))
+                    except:
+                        sensor_data[key] = "error"
+                else:
+                    sensor_data[key] = value
+            else:
+                sensor_data[key] = "error"
+
+        sensor_data['health'] = "healthy"
+        sensor_data['plant'] = "tomato"
+
+        return jsonify(sensor_data), 200
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 #---------------------------------------------------------------------------------------------------------------------------------
 #Insight Ai

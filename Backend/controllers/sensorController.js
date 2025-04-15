@@ -84,7 +84,7 @@ exports.getWaterLevel = async (req, res) => {
 
         res.status(200).json({
             success: true,
-            value: percentage.toFixed(2) // Limit to 2 decimal places
+            value: percentage // Limit to 2 decimal places
         });
 
     } catch (error) {

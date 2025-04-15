@@ -4,6 +4,9 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../tts_voice.dart';
 import 'chatbot.dart';
+import 'danger_alert.dart';
+import 'danger_diseases.dart';
+import 'danger_waterlvl.dart';
 
 class PlantDetailsPage extends StatefulWidget {
   const PlantDetailsPage({super.key});
@@ -17,6 +20,7 @@ class _PlantDetailsPageState extends State<PlantDetailsPage> {
   String intruderStatus = "Loading...";
   String waterLevel = "Loading...";
   bool isWatering = false;
+  bool WaterWarn = false ;
   String plantInsightMessage = "Insight not available yet.";
 
   Map<String, String> sensorData = {
@@ -34,7 +38,7 @@ class _PlantDetailsPageState extends State<PlantDetailsPage> {
   void initState() {
     super.initState();
     setupWebSocket();
-    fetchSensorData(); // 👈 Fix: Load sensor data on page open
+    fetchSensorData();
   }
 
   void setupWebSocket() {
@@ -46,6 +50,20 @@ class _PlantDetailsPageState extends State<PlantDetailsPage> {
         intruderStatus = data['intruderStatus'];
         waterLevel = "${data['waterLevel']}%";
       });
+      if (data['intruderStatus'] == 'Intruder Detected') {
+        // Navigate to Danger Alert Page
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => DangerAlertPage()),
+        );
+      }
+      if(data['waterLevel']>=75 && WaterWarn==false){
+        WaterWarn = true;
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context)=> WaterDangerAlertPage()),
+        );
+      }
     });
   }
 
