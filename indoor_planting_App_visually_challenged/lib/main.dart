@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'screens/login_page.dart';
+import 'screens/chatbot.dart';
 import 'screens/plant_details.dart';
-import 'screens/danger_alert.dart';
-import 'screens/danger_diseases.dart';
 
 void main() {
   runApp(const MyApp());
@@ -18,9 +16,10 @@ class MyApp extends StatelessWidget {
       initialRoute: '/',
       routes: {
         // '/': (context) => LoginPage(),
-        // '/plant': (context) => PlantDetailsPage(),
-        '/': (context) => DangerAlertPage(),
+        '/': (context) => PlantDetailsPage(),
+        // '/danger': (context) => DangerAlertPage(),
         // '/disease': (context) => DangerDiseasesPage(),
+        '/chatbot' : (context) => ChatBotPage()
       },
     );
   }

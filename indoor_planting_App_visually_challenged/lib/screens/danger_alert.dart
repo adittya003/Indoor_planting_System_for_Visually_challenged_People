@@ -4,6 +4,8 @@ import '../tts_voice.dart';
 import 'plant_details.dart'; // Import Plant Details Page
 
 class DangerAlertPage extends StatefulWidget {
+  const DangerAlertPage({super.key});
+
   @override
   _DangerAlertPageState createState() => _DangerAlertPageState();
 }

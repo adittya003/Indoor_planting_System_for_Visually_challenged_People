@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 class DangerDiseasesPage extends StatelessWidget {
+  const DangerDiseasesPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

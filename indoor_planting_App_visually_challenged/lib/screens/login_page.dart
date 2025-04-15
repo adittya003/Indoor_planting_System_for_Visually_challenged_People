@@ -6,6 +6,8 @@ import 'plant_details.dart';
 class LoginPage extends StatelessWidget {
   final TextEditingController _controller = TextEditingController();
 
+  LoginPage({super.key});
+
   // Function to handle login request
   Future<void> login(BuildContext context, String blynkToken) async {
     final Uri apiUrl = Uri.parse('http://10.0.2.2:5000/api/auth/login'); // Update to use emulator IP
