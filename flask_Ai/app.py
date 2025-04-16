@@ -7,6 +7,9 @@ from Config import Config
 from chatbot import *
 from insight_ai import *
 import requests
+from utils import process_image_for_prediction
+from Config import PROCESSED_FOLDER
+import cv2
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -15,36 +18,27 @@ counter = Value('i', 0)
 # -----------------------------------------------------------------------------------------------------------------------------
 # Esp32-Cam Routes
 
-def save_img(img):
-	with counter.get_lock():
-		counter.value += 1
-		count = counter.value
-	img_dir = "esp32_imgs"
-	if not os.path.isdir(img_dir):
-		os.mkdir(img_dir)
-	img_name = f"img_{count}.jpg"
-	cv2.imwrite(os.path.join(img_dir, img_name), img)
-	return img_name
-
 @app.route('/upload', methods=['POST'])
-def upload():
-	img = None
-	if request.files:
-		file = request.files['imageFile']
-		nparr = np.frombuffer(file.read(), np.uint8)
-		img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
-		filename = save_img(img)
-		
-		return jsonify({
-			"status": "success",
-			"message": "Image received and saved",
-			"filename": filename
-		}), 201
-	else:
-		return jsonify({
-			"status": "failure",
-			"message": "No image received"
-		}), 400
+def predict_from_camera():
+    if 'imageFile' not in request.files:
+        return jsonify({"error": "No image file provided"}), 400
+
+    file = request.files['imageFile']
+    nparr = np.frombuffer(file.read(), np.uint8)
+    img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+
+    if img is None:
+        return jsonify({"error": "Failed to decode image"}), 422
+
+    save_path = os.path.join(PROCESSED_FOLDER, "processed_image.jpg")
+    cv2.imwrite(save_path, img)
+
+    # If you want real prediction later, uncomment this:
+    results = process_image_for_prediction(img)
+    print("message Image processing in progress")
+    return jsonify(results), 200
+
+    #return jsonify({"message": "Image processing in progress"}), 202
 
 # -----------------------------------------------------------------------------------------------------------------------------
 # Chat-Bot
