@@ -57,7 +57,7 @@ class _PlantDetailsPageState extends State<PlantDetailsPage> {
           MaterialPageRoute(builder: (context) => DangerAlertPage()),
         );
       }
-      if(data['waterLevel']>=75 && WaterWarn==false){
+      if(data['waterLevel']<=20 && WaterWarn==false){
         WaterWarn = true;
         Navigator.push(
           context,
@@ -72,18 +72,26 @@ class _PlantDetailsPageState extends State<PlantDetailsPage> {
       print("Fetching sensor data...");
 
       final responses = await Future.wait([
-        http.get(Uri.parse('http://10.0.2.2:5000/api/v1/get-Temprature')),
+        http.get(Uri.parse('http://10.0.2.2:5000/api/v1/get-Temperature')),
         http.get(Uri.parse('http://10.0.2.2:5000/api/v1/get-Humidity')),
         http.get(Uri.parse('http://10.0.2.2:5000/api/v1/get-LDR')),
         http.get(Uri.parse('http://10.0.2.2:5000/api/v1/get-SoilMoisture')),
         http.get(Uri.parse('http://10.0.2.2:5000/api/v1/get-IR1')),  // Assuming plant height
       ]);
+      final ML_responses = await Future.wait(
+          [http.get(Uri.parse('http://10.0.2.2:5001/result'))
+      ]);
+
+
 
       final temperature = jsonDecode(responses[0].body)['value'] ?? "0";
       final humidity = jsonDecode(responses[1].body)['value'] ?? "0";
       final light = jsonDecode(responses[2].body)['value'] ?? "unknown";
       final soilMoisture = jsonDecode(responses[3].body)['value'] ?? "0";
       final plantHeight = jsonDecode(responses[4].body)['value'] ?? "unknown";
+      // final health = jsonDecode(ML_responses[0].body)['leaf_disease'] ?? "healthy";
+      // final fruit_detection = jsonDecode(ML_responses[0].body)['fruit_detection'] ?? "unknown";
+
 
       print("Parsed Values:");
       print("Temperature: $temperature");
@@ -100,7 +108,7 @@ class _PlantDetailsPageState extends State<PlantDetailsPage> {
           "soilMoisture": soilMoisture ?? 0,
           "light": light.toString(),
           "plantHeight": plantHeight.toString(),
-          "health": "healthy",
+          "health": "unhealthy",
         }
       };
 
@@ -135,7 +143,7 @@ class _PlantDetailsPageState extends State<PlantDetailsPage> {
   Future<void> fetchSensorData() async {
     Map<String, String> endpoints = {
       'Soil Moisture': 'get-SoilMoisture',
-      'Temperature': 'get-Temprature',
+      'Temperature': 'get-Temperature',
       'Humidity': 'get-Humidity',
       'LDR': 'get-LDR',
       'Plant Height': 'get-IR1',
@@ -150,6 +158,7 @@ class _PlantDetailsPageState extends State<PlantDetailsPage> {
         });
         continue;
       }
+
 
       try {
         final response =

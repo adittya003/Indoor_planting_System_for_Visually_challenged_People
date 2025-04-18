@@ -6,7 +6,7 @@ const BLYNK_AUTH_TOKEN=process.env.BLYNK_AUTH_TOKEN;
 const get_api_base="https://blynk.cloud/external/api/get?token=";
 const update_api_base="https://blynk.cloud/external/api/update?token=";
 
-exports.getTemprature = async(req,res) => {
+exports.getTemperature = async(req,res) => {
     try {
         const url = `${get_api_base}${BLYNK_AUTH_TOKEN}&V2`;
 

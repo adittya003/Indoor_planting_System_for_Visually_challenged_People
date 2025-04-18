@@ -3,6 +3,7 @@ import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'plant_details.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import '../tts_voice.dart';
 
 class ChatBotPage extends StatefulWidget {
   const ChatBotPage({super.key});
@@ -63,12 +64,32 @@ class _ChatBotPageState extends State<ChatBotPage> {
       chatHistory.add({'role': 'user', 'message': message});
     });
 
-    String botResponse = await getGeminiResponse(message);
+    try {
+      String botResponse = await getGeminiResponse(message);
 
-    setState(() {
-      chatHistory.add({'role': 'bot', 'message': botResponse});
-    });
+      if (!isEmulator) {
+        await TTSVoice().speak(botResponse);
+      }
+
+      setState(() {
+        chatHistory.add({'role': 'bot', 'message': botResponse});
+      });
+    } catch (e) {
+      print("Insight fetch error: $e");
+
+      if (!isEmulator) {
+        await TTSVoice().speak("An error occurred while getting plant insights.");
+      }
+
+      setState(() {
+        chatHistory.add({
+          'role': 'bot',
+          'message': "An error occurred while getting plant insights."
+        });
+      });
+    }
   }
+
 
   Future<String> getGeminiResponse(String query) async {
     try {

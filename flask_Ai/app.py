@@ -39,6 +39,13 @@ def predict_from_camera():
     return jsonify(results), 200
 
     #return jsonify({"message": "Image processing in progress"}), 202
+leaf_data=None
+@app.route('/result',methods=['POST'])
+def recieve_result():
+    leaf_data = request.get_json()
+    print("ESP 32 Cam",leaf_data)
+    return leaf_data
+     
 
 # -----------------------------------------------------------------------------------------------------------------------------
 # Chat-Bot
@@ -74,7 +81,7 @@ def get_data():
     try:
         base_url = "http://localhost:5000/api/v1"
         endpoints = {
-            "temperature": "/get-Temprature",
+            "temperature": "/get-Temperature",
             "humidity": "/get-Humidity",
             "light": "/get-LDR",
             "soilMoisture": "/get-SoilMoisture",

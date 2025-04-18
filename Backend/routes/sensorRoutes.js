@@ -1,7 +1,7 @@
 const router = require('express').Router()
-const { getTemprature, getHumidity, getLDR, getWaterLevel, getIR1, getIR2, getSoilMoisture, Manual_Water_Pump_switch } = require('../controllers/sensorController');
+const { getTemperature, getHumidity, getLDR, getWaterLevel, getIR1, getIR2, getSoilMoisture, Manual_Water_Pump_switch } = require('../controllers/sensorController');
 
-router.get('/get-Temprature',getTemprature)
+router.get('/get-Temperature',getTemperature)
     .get('/get-Humidity',getHumidity)
     .get('/get-LDR',getLDR)
     .get('/get-WaterLevel',getWaterLevel)

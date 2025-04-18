@@ -93,7 +93,7 @@ class _WaterDangerAlertPageState extends State<WaterDangerAlertPage> {
                   ),
                   SizedBox(height: 10),
                   Text(
-                    'Please turn off the water pump. Water level is too high.',
+                    'Please turn on the water pump. Water level is too low.',
                     style: TextStyle(fontSize: 22),
                     textAlign: TextAlign.center,
                   ),
@@ -131,7 +131,7 @@ class _WaterDangerAlertPageState extends State<WaterDangerAlertPage> {
                 backgroundColor: Colors.orange,
                 shape: CircleBorder(),
                 onPressed: () {
-                  String dangerText = "Please turn off the water pump. Water level is too high.";
+                  String dangerText = "Please turn on the water pump. Water level is too low.";
                   TTSVoice().speak(dangerText);
                 },
                 child: Icon(Icons.volume_up, size: 100),
