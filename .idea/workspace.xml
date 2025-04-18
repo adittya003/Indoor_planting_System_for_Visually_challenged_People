@@ -4,16 +4,7 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="0a26ead0-9d1b-4c10-9690-3a1690e9ef0c" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Backend/controllers/sensorController.js" beforeDir="false" afterPath="$PROJECT_DIR$/Backend/controllers/sensorController.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Backend/routes/sensorRoutes.js" beforeDir="false" afterPath="$PROJECT_DIR$/Backend/routes/sensorRoutes.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/flask_Ai/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/flask_Ai/app.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/indoor_planting_App_visually_challenged/lib/screens/chatbot.dart" beforeDir="false" afterPath="$PROJECT_DIR$/indoor_planting_App_visually_challenged/lib/screens/chatbot.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/indoor_planting_App_visually_challenged/lib/screens/danger_waterlvl.dart" beforeDir="false" afterPath="$PROJECT_DIR$/indoor_planting_App_visually_challenged/lib/screens/danger_waterlvl.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/indoor_planting_App_visually_challenged/lib/screens/plant_details.dart" beforeDir="false" afterPath="$PROJECT_DIR$/indoor_planting_App_visually_challenged/lib/screens/plant_details.dart" afterDir="false" />
-    </list>
+    <list default="true" id="0a26ead0-9d1b-4c10-9690-3a1690e9ef0c" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
