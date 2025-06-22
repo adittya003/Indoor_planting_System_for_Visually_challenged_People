@@ -18,13 +18,18 @@ model = genai.GenerativeModel(
         "top_k": 40,
         "max_output_tokens": 8192,
     },
-    system_instruction="You are a helpful chatbot for a plant monitoring system used by visually impaired users.\n"
+    system_instruction="""You are a helpful chatbot for a plant monitoring system used by visually impaired users.You should only
+    answer queries related to plants and Indooring Gardening. Avoid Answering topics outside Plants and Indooring Gardening\n"""
 )
 
 def init_chat_session(sensor_data: dict):
     global chat
+    print("\n[DEBUG] Inside init_chat_session")
+
     if not sensor_data.get('plantHeight') or not sensor_data.get('plant') or not sensor_data.get('temperature') or not sensor_data.get('humidity') or not sensor_data.get('soilMoisture') or not sensor_data.get('light') or not sensor_data.get('health'):
-        return "Some of the sensor data is missing. Please make sure all sensors are connected and providing data."
+        print("[DEBUG] Some sensor values are missing!")
+        return "Missing data"
+
     data_description = f"""
     Sensor Data:
     - Plant: {sensor_data.get('plant')}
@@ -36,15 +41,24 @@ def init_chat_session(sensor_data: dict):
     - Plant Height : {sensor_data.get('plantHeight')}
     """
 
-    chat = model.start_chat(history=[
-        {"role": "user", "parts": [data_description]}
-    ])
+    print("[DEBUG] Creating chat session with Gemini...")
+    try:
+        chat = model.start_chat(history=[
+            {"role": "user", "parts": [data_description]}
+        ])
+        print("[DEBUG] Chat session created!")
+    except Exception as e:
+        print("[ERROR] Failed to create chat session:", e)
+
 
 
 def chat_with_bot(user_input: str) -> str:
     global chat
+    if chat is None:
+        return "Chat session not initialized. Please initialize first via /api/chat/init."
     response = chat.send_message(user_input)
     return response.text
+
 
 def end_chat_session():
     global chat
@@ -58,7 +72,7 @@ def end_chat_session():
 #         "humidity": 70,
 #         "soilMoisture": 30,
 #         "light": 1,
-#         "plant_height": 1,
+#         "plantHeight": 1,
 #         "health": "unhealthy"
 #     }
 

@@ -5,7 +5,6 @@ import 'package:http/http.dart' as http;
 import '../tts_voice.dart';
 import 'chatbot.dart';
 import 'danger_alert.dart';
-import 'danger_diseases.dart';
 import 'danger_waterlvl.dart';
 
 class PlantDetailsPage extends StatefulWidget {
@@ -20,7 +19,7 @@ class _PlantDetailsPageState extends State<PlantDetailsPage> {
   String intruderStatus = "Loading...";
   String waterLevel = "Loading...";
   bool isWatering = false;
-  bool WaterWarn = false ;
+  bool WaterWarn = false;
   String plantInsightMessage = "Insight not available yet.";
 
   Map<String, String> sensorData = {
@@ -34,11 +33,16 @@ class _PlantDetailsPageState extends State<PlantDetailsPage> {
     'Fruit Detection': 'No',
   };
 
+  bool mlResultFetched = false;
+  String PlantHealth = "healthy";
+  String fruitDetection = "No Fruit";
+
   @override
   void initState() {
     super.initState();
     setupWebSocket();
     fetchSensorData();
+    fetchMLResultIfNeeded();
   }
 
   void setupWebSocket() {
@@ -50,65 +54,74 @@ class _PlantDetailsPageState extends State<PlantDetailsPage> {
         intruderStatus = data['intruderStatus'];
         waterLevel = "${data['waterLevel']}%";
       });
+
       if (data['intruderStatus'] == 'Intruder Detected') {
-        // Navigate to Danger Alert Page
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => DangerAlertPage()),
         );
       }
-      if(data['waterLevel']<=20 && WaterWarn==false){
+
+      if (data['waterLevel'] <= 20 && !WaterWarn) {
         WaterWarn = true;
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context)=> WaterDangerAlertPage()),
+          MaterialPageRoute(builder: (context) => WaterDangerAlertPage()),
         );
       }
     });
   }
 
+  Future<void> fetchMLResultIfNeeded() async {
+    if (mlResultFetched) return;
+    mlResultFetched = true;
+
+    try {
+      final response =
+      await http.get(Uri.parse('http://10.0.2.2:5001/result'));
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        setState(() {
+          PlantHealth = data['leaf_disease'] ?? "healthy";
+          fruitDetection = data['fruit_detection'] ?? "No Fruit";
+          sensorData['Plant Health'] = PlantHealth;
+          sensorData['Fruit Detection'] = fruitDetection;
+        });
+      } else {
+        // default values remain
+      }
+    } catch (e) {
+      print("ML Result fetch error: $e");
+    }
+  }
+
   Future<void> fetchAndSpeakInsight() async {
     try {
-      print("Fetching sensor data...");
-
       final responses = await Future.wait([
         http.get(Uri.parse('http://10.0.2.2:5000/api/v1/get-Temperature')),
         http.get(Uri.parse('http://10.0.2.2:5000/api/v1/get-Humidity')),
         http.get(Uri.parse('http://10.0.2.2:5000/api/v1/get-LDR')),
         http.get(Uri.parse('http://10.0.2.2:5000/api/v1/get-SoilMoisture')),
-        http.get(Uri.parse('http://10.0.2.2:5000/api/v1/get-IR1')),  // Assuming plant height
+        http.get(Uri.parse('http://10.0.2.2:5000/api/v1/get-IR1')),
       ]);
-      final ML_responses = await Future.wait(
-          [http.get(Uri.parse('http://10.0.2.2:5001/result'))
-      ]);
-
-
 
       final temperature = jsonDecode(responses[0].body)['value'] ?? "0";
       final humidity = jsonDecode(responses[1].body)['value'] ?? "0";
       final light = jsonDecode(responses[2].body)['value'] ?? "unknown";
       final soilMoisture = jsonDecode(responses[3].body)['value'] ?? "0";
       final plantHeight = jsonDecode(responses[4].body)['value'] ?? "unknown";
-      // final health = jsonDecode(ML_responses[0].body)['leaf_disease'] ?? "healthy";
-      // final fruit_detection = jsonDecode(ML_responses[0].body)['fruit_detection'] ?? "unknown";
-
-
-      print("Parsed Values:");
-      print("Temperature: $temperature");
-      print("Humidity: $humidity");
-      print("Light: $light");
-      print("Soil Moisture: $soilMoisture");
-      print("Plant Height: $plantHeight");
 
       final payload = {
         "Sensor": {
           "plant": "Tomato",
-          "temperature": temperature ?? 0,
-          "humidity": humidity ?? 0,
-          "soilMoisture": soilMoisture ?? 0,
+          "temperature": temperature,
+          "humidity": humidity,
+          "soilMoisture": soilMoisture,
           "light": light.toString(),
           "plantHeight": plantHeight.toString(),
-          "health": "unhealthy",
+          "health": PlantHealth,
+          "fruit_detection": fruitDetection,
         }
       };
 
@@ -118,9 +131,6 @@ class _PlantDetailsPageState extends State<PlantDetailsPage> {
         headers: {"Content-Type": "application/json"},
         body: jsonEncode(payload),
       );
-
-      print("Insight API Status: ${response.statusCode}");
-      print("Insight API Response: ${response.body}");
 
       if (response.statusCode == 200) {
         final jsonResponse = jsonDecode(response.body);
@@ -138,8 +148,6 @@ class _PlantDetailsPageState extends State<PlantDetailsPage> {
     }
   }
 
-
-
   Future<void> fetchSensorData() async {
     Map<String, String> endpoints = {
       'Soil Moisture': 'get-SoilMoisture',
@@ -147,22 +155,12 @@ class _PlantDetailsPageState extends State<PlantDetailsPage> {
       'Humidity': 'get-Humidity',
       'LDR': 'get-LDR',
       'Plant Height': 'get-IR1',
-      'Plant Health': '',
-      'Fruit Detection': '',
     };
 
     for (var entry in endpoints.entries) {
-      if (entry.value.isEmpty) {
-        setState(() {
-          sensorData[entry.key] = "Not Available";
-        });
-        continue;
-      }
-
-
       try {
-        final response =
-        await http.get(Uri.parse('http://10.0.2.2:5000/api/v1/${entry.value}'));
+        final response = await http.get(
+            Uri.parse('http://10.0.2.2:5000/api/v1/${entry.value}'));
         final data = json.decode(response.body);
 
         setState(() {
@@ -178,6 +176,12 @@ class _PlantDetailsPageState extends State<PlantDetailsPage> {
         });
       }
     }
+
+    // Also update health and fruit detection if ML already fetched
+    if (mlResultFetched) {
+      sensorData['Plant Health'] = PlantHealth;
+      sensorData['Fruit Detection'] = fruitDetection;
+    }
   }
 
   Future<void> waterPlant() async {
@@ -187,9 +191,8 @@ class _PlantDetailsPageState extends State<PlantDetailsPage> {
     });
 
     try {
-      final response = await http.post(
-        Uri.parse('http://10.0.2.2:5000/api/v1/waterpump-button'),
-      );
+      final response =
+      await http.post(Uri.parse('http://10.0.2.2:5000/api/v1/waterpump-button'));
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
@@ -286,17 +289,11 @@ class _PlantDetailsPageState extends State<PlantDetailsPage> {
                   crossAxisSpacing: 12,
                   mainAxisSpacing: 12,
                   childAspectRatio: 1.5,
-                  children: [
-                    sensorBox('Soil Moisture', sensorData['Soil Moisture']!),
-                    sensorBox('Temperature', sensorData['Temperature']!),
-                    sensorBox('Humidity', sensorData['Humidity']!),
-                    sensorBox('LDR', sensorData['LDR']!),
-                    sensorBox('Plant Height', sensorData['Plant Height']!),
-                    sensorBox('Water Level', waterLevel),
-                    sensorBox('Plant Health', sensorData['Plant Health']!),
-                    sensorBox('Fruit Detection', sensorData['Fruit Detection']!),
-                    sensorBox('Intruder Status', intruderStatus),
-                  ],
+                  children: sensorData.entries
+                      .map((entry) => sensorBox(entry.key, entry.value))
+                      .toList()
+                    ..add(sensorBox('Water Level', waterLevel))
+                    ..add(sensorBox('Intruder Status', intruderStatus)),
                 ),
               ),
             ),
